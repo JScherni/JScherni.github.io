@@ -9,3 +9,7 @@ body{
 canvas{
     border: white 1px solid;
 }
+
+.hide{
+    display: none;
+}
