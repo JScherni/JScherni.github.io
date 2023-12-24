@@ -31,10 +31,7 @@ class Bullet{
 
 class Entity{
     constructor(selector){
-
-        //this.imageRepresantation = document.createElement("img");
         this.imageRepresantation = document.querySelector(selector);
-        //this.imageRepresantation.innerHTML = "src=\"./graphics/help.png\"  width=\"50\" height=\"50\"";
     }
 
     calcCulision(bullet){
@@ -50,6 +47,10 @@ class Entity{
         // console.log('Collision: ' + yCollision && xCollision);
     
         return yCollision && xCollision;
+    }
+
+    draw(){
+        ctx.drawImage(this.imageRepresantation, this.position.x, this.position.y, this.width, this.height);
     }
 }
 
@@ -76,19 +77,6 @@ class Player extends Entity{
         this.moveLeft = false;
         this.moveRight = false;
 
-    }
-
-    draw(){
-        /*
-        ctx.beginPath();
-        ctx.moveTo(this.position.x, this.position.y);
-        ctx.lineTo(this.position.x + this.width/2, this.position.y-this.height);
-        ctx.lineTo(this.position.x + this.width, this.position.y);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        */
-
-        ctx.drawImage(this.imageRepresantation, this.position.x, this.position.y, this.width, this.height);
     }
 
     update(){
@@ -148,16 +136,6 @@ class Enemy extends Entity{
         this.lastShot = new Date();
         this.nextShot = Math.floor(Math.random() * 10000);
         this.jumpDistance = jumpDist * this.height + 10;
-    }
-
-    draw(){
-        /*
-        ctx.beginPath();
-        ctx.rect(this.position.x, this.position.y, this.width, this.height);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        */
-        ctx.drawImage(this.imageRepresantation, this.position.x, this.position.y, this.width, this.height);
     }
 
     shoot(time){
