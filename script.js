@@ -30,8 +30,11 @@ class Bullet{
 
 
 class Entity{
-    constructor(selector){
+    constructor(selector, width, height, position){
         this.imageRepresantation = document.querySelector(selector);
+        this.width = width;
+        this.height = height;
+        this.position = position;
     }
 
     calcCulision(bullet){
@@ -56,15 +59,13 @@ class Entity{
 
 class Player extends Entity{
     constructor(){
-        super("#player");
-        this.width = 100;
-        this.height = 100;
-        this.color = '#FF0000';
-
-        this.position = {
-            x: canvas.width/2 - this.width/2,
-            y: canvas.height - this.height
-        }
+        //selector, width, height, position
+        let w = 100;
+        let h = 100;
+        super("#player", w, h, {
+            x: canvas.width/2 - w/2,
+            y: canvas.height - h
+        });
 
         this.velocity = {
             x: 0.01,
@@ -76,7 +77,6 @@ class Player extends Entity{
 
         this.moveLeft = false;
         this.moveRight = false;
-
     }
 
     update(){
@@ -118,15 +118,10 @@ class Player extends Entity{
 
 class Enemy extends Entity{
     constructor(x, y, velocity, jumpDist){
-        super("#enemy");
-        this.width = 50;
-        this.height = 50;
-        this.color = '#00FF00';
-
-        this.position = {
+        super("#enemy", 50, 50, {
             x: x,
             y: y
-        }
+        });
 
         this.velocity = {
             x: velocity,
