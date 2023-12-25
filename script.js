@@ -10,7 +10,7 @@ class Bullet{
         this.position = position;
         this.velocity = {
             x: 0,
-            y: 5 * direction
+            y: 3 * direction
         }
         this.shooter = shooter;
     }
@@ -291,7 +291,7 @@ class enemyGrid{
         for(let j = 0; j < rows; j++){
             let currentX = x;
             for(let i = 0; i < numberOfEnemies; i++){
-                let enemy = new Enemy(currentX, y, 2, rows);
+                let enemy = new Enemy(currentX, y, 1, rows);
                 enemy.position.y = enemy.height* j + this.gridGap + y;
                 currentX += enemy.width + this.gridGap;
                 this.enemies.push(enemy);
