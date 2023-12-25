@@ -72,7 +72,7 @@ class Player extends Entity{
             y: 0
         }
 
-        this.shotInterval = 20;
+        this.shotInterval = 100;
         this.lastShot = 0;
 
         this.moveLeft = false;
@@ -108,7 +108,7 @@ class Player extends Entity{
             return null;
         }
 
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y + 2 - this.height}, 1);
+        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1);
         bullet.draw(); 
         this.lastShot = time;
         console.log('shoot');
@@ -176,7 +176,7 @@ class enemyGrid{
             let currentX = x;
             for(let i = 0; i < numberOfEnemies; i++){
                 let enemy = new Enemy(currentX, y, 2, rows);
-                enemy.position.y = enemy.width * j + 20;
+                enemy.position.y = enemy.height* j + 20 + y;
                 currentX += enemy.width + 20;
                 this.enemies.push(enemy);
             }
@@ -192,13 +192,13 @@ class enemyGrid{
 
             if((e.position.x) >= (comrade.position.x) && 
                 (e.position.x) < (comrade.position.x + this.width + 100)){
-                    console.log("not allowed to shoot 1");
+                    //console.log("not allowed to shoot 1");
                     return false;
             }
 
             if((e.position.x) <= (comrade.position.x) && 
                 (e.position.x) > (comrade.position.x - this.width - 100)){
-                    console.log("not allowed to shoot 2");
+                    //console.log("not allowed to shoot 2");
                     return false;
             }
         }
@@ -226,17 +226,21 @@ class Game{
         this.bullets = [];
         this.gameTime  = new Date(); 
         this.enemyGrid = new enemyGrid();
-        this.enemyGrid.create(3, 10, 50, 50); 
+
+        this.enemyRows = 3;
+        this.enemyColumns = 10;
+        this.enemyGridXStartPos = 50;
+        this.enemyGridYStartPos = 20;
+        this.enemyGrid.create(this.enemyRows, this.enemyColumns, this.enemyGridXStartPos, this.enemyGridYStartPos); 
 
         this.entity = [];
         this.entity.push(this.player);
-        /*
-        this.enemyGrid.enemies.forEach(element => {
-            this.entity.push(element);
-        });*/
 
         this.score = 0;
         this.lifes = 3;
+
+        this.wave = 1;
+        this.isRunning = true;
     }
 
     updateScore(){
@@ -249,6 +253,55 @@ class Game{
         ctx.font = "30px Arial";
         ctx.fillStyle = "#FF0000";
         ctx.fillText(this.lifes, canvas.width - 50, 50);
+    }
+
+    gameover(){
+        ctx.font = "100px Arial";
+        ctx.fillStyle = "#FF0000";
+        ctx.textAlign = 'center';
+        ctx.fillText("Game Over", canvas.width/2, canvas.height/2-50);
+        ctx.fillText(`Your Score ${this.score}`, canvas.width/2, canvas.height/2 + 50);
+    }
+
+    checkEnemyWinningPos(){
+        for(enemy of this.enemyGrid.enemies){
+            if((enemy.position.y + enemy.height) >= (this.player.position.y)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    checkGameOver(){
+        let legalPos = this.checkEnemyWinningPos();
+        if(this.lifes <= 0 || legalPos){
+            this.isRunning = false;
+            this.gameover();
+        }
+    }
+
+    overdrawScreen(){
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000000';
+        ctx.fill();
+    }
+
+    respawnEnemies(){
+        if(this.enemyGrid.enemies.length > 0){
+            return;
+        }
+
+        if(this.wave % 2 == 0){
+            this.enemyRows++;
+            this.enemyColumns = 10;
+        } else{
+            this.enemyColumns++;
+        }
+
+        this.wave++;
+        this.enemyGrid.create(this.enemyRows, this.enemyColumns, this.enemyGridXStartPos, this.enemyGridYStartPos);
     }
 
     checkForCollision(entity){
@@ -265,9 +318,9 @@ class Game{
     }
 
     update(){
-        let now = new Date().getTime();
-
+        this.overdrawScreen();
         
+        let now = new Date().getTime();
         for(let i = 0; i < this.bullets.length; i++){
             if(this.bullets[i].position.y <= 0 || this.bullets[i].position.y >= canvas.height){
                 this.bullets.splice(i, 1);
@@ -307,6 +360,8 @@ class Game{
         this.player.update();
         this.updateLifes();
         this.updateScore();
+        this.respawnEnemies();
+        this.checkGameOver();
     }
 }
 
@@ -317,10 +372,10 @@ game.update();
 
 
 function animate(g){
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#000000';
-    ctx.fill();
+    if(!game.isRunning){
+        return;
+    }
+
     game.update();
     requestAnimationFrame(animate);
 }
