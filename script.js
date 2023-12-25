@@ -3,15 +3,16 @@ const ctx = canvas.getContext('2d');
 
 
 class Bullet{
-    constructor(position, direction = 1){
+    constructor(position, direction = 1, shooter){
         this.width = 10;
         this.height = 10;
         this.color = "#FFFF00";
         this.position = position;
         this.velocity = {
             x: 0,
-            y: 2 * direction
+            y: 5 * direction
         }
+        this.shooter = shooter;
     }
 
     draw(){
@@ -64,7 +65,7 @@ class Player extends Entity{
         let h = 100;
         super("#player", w, h, {
             x: canvas.width/2 - w/2,
-            y: canvas.height - h
+            y: canvas.height - h - 10
         });
 
         this.velocity = {
@@ -108,7 +109,7 @@ class Player extends Entity{
             return null;
         }
 
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1);
+        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1, this);
         bullet.draw(); 
         this.lastShot = time;
         console.log('shoot');
@@ -140,22 +141,28 @@ class Enemy extends Entity{
         }
 
         // console.log("Allahu Akbar");
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y + this.height +3}, -1);
+        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y + this.height +3}, -1, this);
         bullet.draw();
         this.lastShot = time;
         this.nextShot = Math.floor(Math.random() * 10000);
         return bullet;
     }
 
+    isWithinBounds() {
+        return !(((this.position.x + this.width) >= canvas.width) || this.position.x <= 0);
+    }
+
     update(){
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
-
+        /*
         if((this.position.x + this.width) >= canvas.width || this.position.x <= 0){
             this.velocity.x *= -1;
             this.position.y += this.jumpDistance;
         }
+        */
         this.draw();
+        return 0;
     }
 }
 
@@ -169,6 +176,8 @@ class enemyGrid{
             x: 0,
             y: 0
         }
+
+        this.gridGap = 20;
     }
 
     create(rows, numberOfEnemies, x, y){
@@ -176,8 +185,8 @@ class enemyGrid{
             let currentX = x;
             for(let i = 0; i < numberOfEnemies; i++){
                 let enemy = new Enemy(currentX, y, 2, rows);
-                enemy.position.y = enemy.height* j + 20 + y;
-                currentX += enemy.width + 20;
+                enemy.position.y = enemy.height* j + this.gridGap + y;
+                currentX += enemy.width + this.gridGap;
                 this.enemies.push(enemy);
             }
         }
@@ -216,6 +225,33 @@ class enemyGrid{
                     game.bullets.push(bullet);
                 }
             }
+        }
+    }
+
+    allWithinBounds(){
+        for(let enemy of this.enemies){
+            if(!enemy.isWithinBounds()){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    update(){
+        let direction = 1;
+        let jumpDistance = 0;
+
+        if(!this.allWithinBounds()){
+            console.log("jump");
+            direction = -1;
+            jumpDistance = this.enemies[0].height + this.gridGap;
+        }
+
+        for(let enemy of this.enemies){
+            enemy.velocity.x *= direction;
+            enemy.position.y += jumpDistance;
+            enemy.update();
         }
     }
 }
@@ -308,7 +344,10 @@ class Game{
        // console.log("checking");
         for(let i = 0; i < this.bullets.length; i++){
             if(entity.calcCulision(this.bullets[i])){
-                this.bullets.splice(i, 1);
+                let hit = this.bullets.splice(i, 1);
+                if(hit[0].shooter instanceof Enemy && entity instanceof Enemy){
+                    continue;
+                }
                 console.log("collision");
                 return true;
             }
@@ -352,9 +391,7 @@ class Game{
         });
 
         
-        this.enemyGrid.enemies.forEach(element => {
-            element.update();
-        });
+        this.enemyGrid.update();
  
         this.enemyGrid.manageShooting(now);
         this.player.update();
@@ -366,7 +403,7 @@ class Game{
 }
 
 const game = new Game();
-const bullet = new Bullet({x: 100, y: 100});
+//const bullet = new Bullet({x: 100, y: 100});
 game.update();
 
 
