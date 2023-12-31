@@ -1,3 +1,7 @@
+import {Wall, Ramp}from "./structure.js"
+import {Entity} from "./entity.js"
+
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -29,8 +33,9 @@ class Bullet{
     }
 }
 
+/*
 
-class Entity{
+export class Entity{
     constructor(width, height, position, selector = ""){
         this.selector = selector;
         if(selector !== ""){
@@ -57,7 +62,9 @@ class Entity{
         }
     }
 }
+*/
 
+/*
 class Brick extends Entity{
     constructor(width, height, position, color){
         super(width, height, position);
@@ -146,6 +153,8 @@ class Ramp extends Structure{
     }
 }
 
+
+ */
 class Player extends Entity{
     constructor(){
         //selector, width, height, position
@@ -394,7 +403,7 @@ class Game{
     updateScore(){
         ctx.font = "30px Arial";
         ctx.fillStyle = "#FF0000";
-        ctx.fillText(this.score, 10, 50); 
+        ctx.fillText(this.score, 10, 50);
     }
 
     updateLifes(){
