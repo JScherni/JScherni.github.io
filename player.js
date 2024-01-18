@@ -18,11 +18,12 @@ export class Player extends Entity{
             y: 0
         }
 
-        this.shotInterval = 100;
+        this.shotInterval = 200;
         this.lastShot = 0;
 
         this.moveLeft = false;
         this.moveRight = false;
+        this.shooting = false;
         this.visiblity = true;
     }
 

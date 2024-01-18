@@ -51,7 +51,7 @@ class PowerUp extends Entity{
 
         return false;
     }
-d
+
     powerPlayer(player){
         player.shotInterval = player.shotInterval/2;
         setTimeout(() => {
@@ -282,7 +282,7 @@ export class Game{
             return;
         }
 
-        if(this.wave % 2 == 0){
+        if(this.wave % 2 === 0){
             this.enemyRows++;
             this.enemyColumns = 10;
         } else{
@@ -362,6 +362,13 @@ export class Game{
         this.enemyGrid.manageShooting(now);
         this.respawnEnemies();
 
+        if(this.player.shooting){
+            let bullet = this.player.shoot(now);
+            if(!(bullet === null)){
+                this.bullets.push(bullet);
+            }
+        }
+
         this.spawnPowerUp();
         this.player.update();
 
@@ -399,6 +406,8 @@ function animate(g){
 
 animate(game);
 
+//let spaceIsDown = false;
+
 addEventListener('keydown', ({key}) => {
     switch(key){
         case 'a':
@@ -409,11 +418,7 @@ addEventListener('keydown', ({key}) => {
             break;
         case ' ':
             //console.log('space');
-            let bullet = game.player.shoot(new Date());
-            if(bullet === null){
-                break;
-            }
-            game.bullets.push(bullet);
+            game.player.shooting = true;
             break;
     }
 });
@@ -426,6 +431,9 @@ addEventListener('keyup', ({key}) => {
             break;
         case 'd':
             game.player.moveRight = false;
+            break;
+        case ' ':
+            game.player.shooting = false;
             break;
     }
 });
