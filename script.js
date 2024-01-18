@@ -1,284 +1,93 @@
 import {Wall, Ramp}from "./structure.js"
 import {Entity} from "./entity.js"
+import {Player} from "./player.js"
+import {Bullet} from "./bullet.js"
+import {Enemy} from "./Enemy.js"
+//import {enemyGrid} from "./EnemyGrid.js"
 
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
+class PowerUp extends Entity{
+    constructor(position, validityTime = 5000) {
+        let wh = 50;
+        super(wh, wh, position);
 
-class Bullet{
-    constructor(position, direction = 1, shooter){
-        this.width = 10;
-        this.height = 10;
-        this.color = "#FFFF00";
-        this.position = position;
-        this.velocity = {
-            x: 0,
-            y: 3 * direction
-        }
-        this.shooter = shooter;
+        this.validityTime = validityTime;
+        this.color = "#FF0000";
+        this.pickedUp = false;
+        this.toBeDeleted = false;
+
+        this.pickupTime = 0;
     }
 
     draw(){
         ctx.beginPath();
-        ctx.rect(this.position.x, this.position.y, this.width, this.height);
+        ctx.arc(this.position.x, this.position.y, this.width/2, 0, 2 * Math.PI, true)
         ctx.fillStyle = this.color;
         ctx.fill();
     }
 
-    update(){
-        this.position.y -= this.velocity.y;
-        this.draw();
-        // console.log('draw bullet');
-    }
-}
-
-/*
-
-export class Entity{
-    constructor(width, height, position, selector = ""){
-        this.selector = selector;
-        if(selector !== ""){
-            this.imageRepresantation = document.querySelector(selector);
-        }
-        this.width = width;
-        this.height = height;
-        this.position = position;
-    }
-
-    calcCulision(bullet){
-        let yCollision = bullet.position.y >= this.position.y 
-            && bullet.position.y <= (this.position.y + this.height);
-
-        let xCollision = bullet.position.x >= this.position.x
-            && bullet.position.x <= (this.position.x + this.width);
-    
-        return yCollision && xCollision;
-    }
-
-    draw(){
-        if(this.selector !== ""){
-            ctx.drawImage(this.imageRepresantation, this.position.x, this.position.y, this.width, this.height);
-        }
-    }
-}
-*/
-
-/*
-class Brick extends Entity{
-    constructor(width, height, position, color){
-        super(width, height, position);
-        this.color = color;
-    }
-
-    //draw brick
-    draw(){
-        ctx.beginPath();
-        ctx.rect(this.position.x, this.position.y, this.width, this.height);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-    }
-
-    update(){
-        this.draw();
-    }
-}
-
-class Structure{
-    constructor(position, width, height, color = "#71DFFF"){
-        this.bricks = [];
-        this.position = position;
-        this.width = width;
-        this.height = height;
-        this.widthBricks = 40;
-        this.heightBricks = 40;
-
-        this.color = color;
-
-        if(position.x < 0){
-            this.position.x = canvas.width + position.x - this.width * this.widthBricks;
+    checkPickUp(player){
+        if(this.pickedUp){
+            return false;
         }
 
-        if(position.y < 0){
-            this.position.y = canvas.height + position.y - this.height * this.heightBricks;
-        }
-    }
+        let leftRand = this.position.x - this.width/2;
+        let rightRand = this.position.x + this.width/2;
 
-    update(){
-        for(let brick of this.bricks){
-            brick.update();
-        }
-    }
-}
+        let playerLeft = player.position.x;
+        let playerRight = player.position.x + player.width;
 
-class Wall extends Structure{
-    constructor(position, width, height, color = "#F7FF00"){
-        super(position, width, height, color);        
-        this.create();
-    }
-
-    create(){
-        for(let i = 0; i < this.width; i++){
-            for(let j = 0; j < this.height; j++){
-                let brick = new Brick(this.widthBricks, this.heightBricks, {
-                    x: this.position.x + i * this.widthBricks,
-                    y: this.position.y + j * this.heightBricks
-                }, this.color);
-                this.bricks.push(brick);
-            }
-        }
-    }   
-}
-
-class Ramp extends Structure{
-    constructor(position, width, height, orientation = 1, color = "#71DFFF"){
-        super(position, width, height, color);
-
-        this.orientation = orientation;
-
-        this.position.x -= this.widthBricks/2;
-        this.create();
-    }
-
-    create(){
-        for(let i = 0; i < this.height; i++){
-            for(let j = 0; j < this.width && j <= i; j++){
-                let brick = new Brick(this.widthBricks, this.heightBricks, {
-                    x: this.position.x + j * this.widthBricks * this.orientation,
-                    y: this.position.y + i * this.heightBricks
-                }, this.color);
-                this.bricks.push(brick);
-            }
-        }
-    }
-}
-
-
- */
-class Player extends Entity{
-    constructor(){
-        //selector, width, height, position
-        let w = 100;
-        let h = 100;
-        super(w, h, {
-            x: canvas.width/2 - w/2,
-            y: canvas.height - h - 10
-        }, "#player");
-
-        this.velocity = {
-            x: 0.01,
-            y: 0
+        if((playerLeft <= rightRand && playerLeft >= leftRand) ||
+            (playerRight >= leftRand && playerRight <= rightRand)){
+            console.log("power up");
+            this.powerPlayer(player);
+            this.pickedUp = true;
+            this.pickupTime = new Date().getTime();
+            return true;
         }
 
-        this.shotInterval = 100;
-        this.lastShot = 0;
-
-        this.moveLeft = false;
-        this.moveRight = false;
-        this.visiblity = true;
+        return false;
     }
-
-    isHit(){
-        let int = setInterval(() => {
-            this.visiblity = !this.visiblity;
-        }, 200);
-
+d
+    powerPlayer(player){
+        player.shotInterval = player.shotInterval/2;
         setTimeout(() => {
-            this.visiblity = true;
-            clearInterval(int);
-        }, 1200);
+            player.shotInterval = player.shotInterval*2;
+            this.toBeDeleted = true;
+        }, this.validityTime);
     }
 
-    update(){
-        if(this.position.x <= 0 && this.velocity.x > 0){
-            this.moveLeft = false;
-            this.velocity.x = 0;
+    drawIndicator(player){
+        this.position.x = player.position.x + player.width;
+        this.position.y = player.position.y+20;
+
+        if((new Date().getTime() - this.pickupTime) > this.validityTime){
+            return;
         }
 
-        if(this.position.x >= canvas.width - this.width && this.velocity.x < 0){
-            this.moveRight = false;
-            this.velocity.x = 0;
-        }
-        
-        if(this.moveLeft){
-            this.velocity.x = 5;
-        }else if(this.moveRight){
-            this.velocity.x = -5;
-        } else{
-            this.velocity.x = 0;
-        }
+        let circleEnd = 2 * Math.PI/ this.validityTime * (new Date().getTime() - this.pickupTime);
 
-        this.position.x -= this.velocity.x;
+        ctx.beginPath();
+        ctx.arc(this.position.x , this.position.y, this.width/4, 0, circleEnd, true);
+        ctx.fillStyle = this.color;
+        ctx.lineTo(this.position.x, this.position.y);
+        ctx.fill();
+    }
 
-        if(this.isHit){
-            
+    update(player){
+        if(this.toBeDeleted){
+            return;
         }
 
-        if(this.visiblity){
+        if(!this.pickedUp){
             this.draw();
-        }
-    }
-
-    shoot(time){
-        if((time - this.lastShot) < this.shotInterval){
-            console.log('too fast');
-            return null;
+            return;
         }
 
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1, this);
-        bullet.draw(); 
-        this.lastShot = time;
-        console.log('shoot');
-        return bullet;
-    }
-}
-
-class Enemy extends Entity{
-    constructor(x, y, velocity, jumpDist){
-        super( 50, 50, {
-            x: x,
-            y: y
-        }, "#enemy");
-
-        this.velocity = {
-            x: velocity,
-            y: 0
-        }
-
-        this.lastShot = new Date();
-        this.nextShot = Math.floor(Math.random() * 10000);
-        this.jumpDistance = jumpDist * this.height + 10;
-    }
-
-    shoot(time){
-        if((time - this.lastShot) < this.nextShot){
-            // console.log("time issue");
-            return null;
-        }
-
-        // console.log("Allahu Akbar");
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y + this.height +3}, -1, this);
-        bullet.draw();
-        this.lastShot = time;
-        this.nextShot = Math.floor(Math.random() * 10000);
-        return bullet;
-    }
-
-    isWithinBounds() {
-        return !(((this.position.x + this.width) >= canvas.width) || this.position.x <= 0);
-    }
-
-    update(){
-        this.position.y += this.velocity.y;
-        this.position.x += this.velocity.x;
-        /*
-        if((this.position.x + this.width) >= canvas.width || this.position.x <= 0){
-            this.velocity.x *= -1;
-            this.position.y += this.jumpDistance;
-        }
-        */
-        this.draw();
-        return 0;
+        this.drawIndicator(player);
     }
 }
 
@@ -315,16 +124,16 @@ class enemyGrid{
                 continue;
             }
 
-            if((e.position.x) >= (comrade.position.x) && 
+            if((e.position.x) >= (comrade.position.x) &&
                 (e.position.x) < (comrade.position.x + this.width + 100)){
-                    //console.log("not allowed to shoot 1");
-                    return false;
+                //console.log("not allowed to shoot 1");
+                return false;
             }
 
-            if((e.position.x) <= (comrade.position.x) && 
+            if((e.position.x) <= (comrade.position.x) &&
                 (e.position.x) > (comrade.position.x - this.width - 100)){
-                    //console.log("not allowed to shoot 2");
-                    return false;
+                //console.log("not allowed to shoot 2");
+                return false;
             }
         }
 
@@ -359,7 +168,7 @@ class enemyGrid{
         let jumpDistance = 0;
 
         if(!this.allWithinBounds()){
-            console.log("jump");
+            //console.log("jump");
             direction = -1;
             jumpDistance = this.enemies[0].height + this.gridGap;
         }
@@ -372,7 +181,7 @@ class enemyGrid{
     }
 }
 
-class Game{
+export class Game{
     constructor(){
         this.player = new Player();
         this.bullets = [];
@@ -388,16 +197,39 @@ class Game{
         this.entity = [];
         this.entity.push(this.player);
 
+        this.visiblePowerUps = [];
+
+        //this.visiblePowerUps.push(new PowerUp({x: 300, y: this.player.position.y + 50}));
+
         this.score = 0;
         this.lifes = 3;
 
         this.wave = 1;
         this.isRunning = true;
+        this.powerUpInThePipeline = false;
 
         this.leftWall = new Wall({x: 100, y: -140}, 3, 3, "#71DFFF");
         this.rightWall = new Wall({x: -100, y: -140}, 3, 3, "#71DFFF");
         this.middlepartR = new Ramp({x: canvas.width/2, y: -140}, 4, 4, 1, "#9DFF57");
         this.middlepartL = new Ramp({x: canvas.width/2-40, y: -140}, 4, 4, -1,"#9DFF57");
+    }
+
+    spawnPowerUp(){
+        if(!(this.visiblePowerUps.length === 0) || this.powerUpInThePipeline){
+            return;
+        }
+        let y = this.player.position.y + 50;
+        let x = Math.floor(Math.random() * canvas.width);
+
+        // spawn a power up with a set intervall function in the next 20 to 40 seconds
+        let nextPowerUp = Math.floor(Math.random() * 2000) + 2000;
+        this.powerUpInThePipeline = true;
+
+        console.log("next power up in: " + nextPowerUp);
+        setTimeout(() => {
+            this.visiblePowerUps.push(new PowerUp({x: x, y: y}));
+            this.powerUpInThePipeline = false;
+        }, nextPowerUp);
     }
 
     updateScore(){
@@ -469,7 +301,7 @@ class Game{
                 if(hit[0].shooter instanceof Enemy && entity instanceof Enemy){
                     continue;
                 }
-                console.log("collision");
+                //console.log("collision");
                 return true;
             }
         }
@@ -520,8 +352,9 @@ class Game{
             element.update(); 
         });
 
-        this.leftWall.update();
+
         this.rightWall.update();
+        this.leftWall.update();
         this.middlepartL.update();
         this.middlepartR.update();
 
@@ -529,7 +362,18 @@ class Game{
         this.enemyGrid.manageShooting(now);
         this.respawnEnemies();
 
+        this.spawnPowerUp();
         this.player.update();
+
+        let numberOfPowerUps = this.visiblePowerUps.length;
+        for(let i = 0; i < numberOfPowerUps; i++){
+            this.visiblePowerUps[i].update(this.player);
+            this.visiblePowerUps[i].checkPickUp(this.player);
+            if(this.visiblePowerUps[i].toBeDeleted){
+                this.visiblePowerUps.splice(i, 1);
+                numberOfPowerUps--;
+            }
+        }
 
         this.updateLifes();
         this.updateScore();
@@ -564,7 +408,7 @@ addEventListener('keydown', ({key}) => {
             game.player.moveRight = true;
             break;
         case ' ':
-            console.log('space'); 
+            //console.log('space');
             let bullet = game.player.shoot(new Date());
             if(bullet === null){
                 break;
@@ -573,6 +417,7 @@ addEventListener('keydown', ({key}) => {
             break;
     }
 });
+
 
 addEventListener('keyup', ({key}) => {
     switch(key){
