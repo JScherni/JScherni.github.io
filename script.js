@@ -22,6 +22,8 @@ class PowerUp extends Entity{
         this.pickupTime = 0;
     }
 
+    powerPlayer(player){};
+
     draw(){
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.width/2, 0, 2 * Math.PI, true)
@@ -52,14 +54,6 @@ class PowerUp extends Entity{
         return false;
     }
 
-    powerPlayer(player){
-        player.shotInterval = player.shotInterval/2;
-        setTimeout(() => {
-            player.shotInterval = player.shotInterval*2;
-            this.toBeDeleted = true;
-        }, this.validityTime);
-    }
-
     drawIndicator(player){
         this.position.x = player.position.x + player.width;
         this.position.y = player.position.y+20;
@@ -88,6 +82,36 @@ class PowerUp extends Entity{
         }
 
         this.drawIndicator(player);
+    }
+}
+
+class MachineGunPowerUp extends PowerUp{
+    constructor(position, validityTime = 5000) {
+        super(position, validityTime);
+        this.color = "#00FF00";
+    }
+
+    powerPlayer(player){
+        player.shotInterval = player.shotInterval/2;
+        setTimeout(() => {
+            player.shotInterval = player.shotInterval*2;
+            this.toBeDeleted = true;
+        }, this.validityTime);
+    }
+}
+
+class piercingPowerUp extends PowerUp{
+    constructor(position, validityTime = 5000) {
+        super(position, validityTime);
+        this.color = "#0000FF";
+    }
+
+    powerPlayer(player){
+        player.piercing = 2;
+        setTimeout(() => {
+            player.piercing = 1;
+            this.toBeDeleted = true;
+        }, this.validityTime);
     }
 }
 
@@ -225,9 +249,16 @@ export class Game{
         let nextPowerUp = Math.floor(Math.random() * 2000) + 2000;
         this.powerUpInThePipeline = true;
 
+        // 50/50 random
+        let nextDecisionPowerUp = Math.floor(Math.random() * 2);
         console.log("next power up in: " + nextPowerUp);
         setTimeout(() => {
-            this.visiblePowerUps.push(new PowerUp({x: x, y: y}));
+            if(nextDecisionPowerUp){
+                this.visiblePowerUps.push(new piercingPowerUp({x: x, y: y}));
+            } else {
+                this.visiblePowerUps.push(new MachineGunPowerUp({x: x, y: y}));
+            }
+
             this.powerUpInThePipeline = false;
         }, nextPowerUp);
     }
@@ -297,8 +328,13 @@ export class Game{
        // console.log("checking");
         for(let i = 0; i < this.bullets.length; i++){
             if(entity.calcCulision(this.bullets[i])){
-                let hit = this.bullets.splice(i, 1);
-                if(hit[0].shooter instanceof Enemy && entity instanceof Enemy){
+                this.bullets[i].bulletPot--;
+                let hit = this.bullets[i];
+                if(this.bullets[i].bulletPot <= 0) {
+                    this.bullets.splice(i, 1);
+                }
+
+                if(hit.shooter instanceof Enemy && entity instanceof Enemy){
                     continue;
                 }
                 //console.log("collision");

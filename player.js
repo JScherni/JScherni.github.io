@@ -25,6 +25,8 @@ export class Player extends Entity{
         this.moveRight = false;
         this.shooting = false;
         this.visiblity = true;
+
+        this.piercing = 1;
     }
 
     isHit(){
@@ -70,7 +72,7 @@ export class Player extends Entity{
             return null;
         }
 
-        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1, this);
+        const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1, this, this.piercing);
         bullet.draw();
         this.lastShot = time;
         console.log('shoot');
