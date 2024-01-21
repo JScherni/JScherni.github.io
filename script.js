@@ -206,6 +206,7 @@ class enemyGrid{
 }
 
 export class Game{
+
     constructor(){
         this.player = new Player();
         this.bullets = [];
@@ -284,7 +285,7 @@ export class Game{
     }
 
     checkEnemyWinningPos(){
-        for(enemy of this.enemyGrid.enemies){
+        for(let enemy of this.enemyGrid.enemies){
             if((enemy.position.y + enemy.height) >= (this.player.position.y)){
                 return true;
             }
