@@ -1,8 +1,8 @@
-import {Enemy} from "./Enemy.js";
+import {Enemy} from "./enemy.js";
 import {Game} from "./script.js";
 
 
-export class enemyGrid{
+export class EnemyGrid {
     constructor(){
         this.enemies = [];
         this.width = 50;
