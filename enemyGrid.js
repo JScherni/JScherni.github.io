@@ -1,8 +1,6 @@
 import {Enemy} from "./enemy.js";
-import {Game} from "./script.js";
 
-
-export class EnemyGrid {
+export class EnemyGrid{
     constructor(){
         this.enemies = [];
         this.width = 50;
@@ -51,7 +49,7 @@ export class EnemyGrid {
         return true;
     }
 
-    manageShooting(time){
+    manageShooting(time, game){
         for(let e of this.enemies){
             if(this.allowedToShoot(e)){
                 let bullet = e.shoot(time);
@@ -79,7 +77,7 @@ export class EnemyGrid {
         let jumpDistance = 0;
 
         if(!this.allWithinBounds()){
-            // console.log("jump");
+            //console.log("jump");
             direction = -1;
             jumpDistance = this.enemies[0].height + this.gridGap;
         }
