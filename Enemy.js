@@ -1,5 +1,5 @@
-import { Entity } from "./Entity.js";
-import { Bullet } from "./Bullet.js";
+import { Entity } from "./entity.js";
+import { Bullet } from "./bullet.js";
 
 
 const canvas = document.querySelector('canvas');
