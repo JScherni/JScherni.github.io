@@ -68,14 +68,14 @@ export class Player extends Entity{
 
     shoot(time){
         if((time - this.lastShot) < this.shotInterval){
-            console.log('too fast');
+            // console.log('too fast');
             return null;
         }
 
         const bullet = new Bullet({x: this.position.x + this.width/2, y: this.position.y - (this.height * 0.01) }, 1, this, this.piercing);
         bullet.draw();
         this.lastShot = time;
-        console.log('shoot');
+        // console.log('shoot');
         return bullet;
     }
 }

@@ -20,7 +20,10 @@ export class Entity{
         let xCollision = bullet.position.x >= this.position.x
             && bullet.position.x <= (this.position.x + this.width);
 
-        return yCollision && xCollision;
+        let xCollision2 = (bullet.position.x + bullet.width) >= this.position.x
+            && (bullet.position.x + bullet.width) <= (this.position.x + this.width);
+
+        return yCollision && (xCollision || xCollision2);
     }
 
     draw(){

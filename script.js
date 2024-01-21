@@ -1,7 +1,7 @@
 import {Wall, Ramp}from "./structure.js"
 import {Entity} from "./entity.js"
 import {Player} from "./player.js"
-import {Bullet} from "./bullet.js"
+// import {Bullet} from "./bullet.js"
 import {Enemy} from "./Enemy.js"
 //import {enemyGrid} from "./EnemyGrid.js"
 
@@ -44,7 +44,7 @@ class PowerUp extends Entity{
 
         if((playerLeft <= rightRand && playerLeft >= leftRand) ||
             (playerRight >= leftRand && playerRight <= rightRand)){
-            console.log("power up");
+            // console.log("power up");
             this.powerPlayer(player);
             this.pickedUp = true;
             this.pickupTime = new Date().getTime();
@@ -252,7 +252,7 @@ export class Game{
 
         // 50/50 random
         let nextDecisionPowerUp = Math.floor(Math.random() * 2);
-        console.log("next power up in: " + nextPowerUp);
+        // console.log("next power up in: " + nextPowerUp);
         setTimeout(() => {
             if(nextDecisionPowerUp){
                 this.visiblePowerUps.push(new piercingPowerUp({x: x, y: y}));
@@ -432,7 +432,7 @@ game.update();
 
 
 
-function animate(g){
+function animate(){
     if(!game.isRunning){
         return;
     }

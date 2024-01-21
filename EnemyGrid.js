@@ -79,7 +79,7 @@ export class enemyGrid{
         let jumpDistance = 0;
 
         if(!this.allWithinBounds()){
-            console.log("jump");
+            // console.log("jump");
             direction = -1;
             jumpDistance = this.enemies[0].height + this.gridGap;
         }
