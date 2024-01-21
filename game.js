@@ -76,7 +76,7 @@ export class Game{
     updateLifes(){
         ctx.font = "30px Arial";
         ctx.fillStyle = "#FF0000";
-        ctx.fillText(this.lifes, canvas.width - 50, 50);
+        ctx.fillText(this.lifes, canvas.width - 25, 50);
     }
 
     gameover(){
